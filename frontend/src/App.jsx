@@ -1,30 +1,42 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext'; // Import Provider Auth
+import { AuthProvider } from './context/AuthContext'; 
 
-// Import Komponen Navigasi
+// Import Komponen
 import BottomNav from './components/BottomNav';
 import Navbar from './components/Navbar';
+import SplashScreen from './components/SplashScreen';
 
-// Import Halaman-halaman
+// Import Halaman
 import Home from './pages/Home'; 
 import Profile from './pages/Profile'; 
 import Favorites from './pages/Favorites'; 
 import About from './pages/About'; 
 import MovieDetail from './pages/MovieDetail'; 
 import TopRated from './pages/TopRated'; 
-import Login from './pages/Login'; // Import Halaman Login
+import Login from './pages/Login'; 
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
   return (
-    // PENTING: Bungkus seluruh aplikasi dengan AuthProvider
     <AuthProvider>
-        <div className="App min-h-screen bg-gray-900 text-white"> 
+        <div className="App min-h-screen bg-gray-900 text-white animate-fade-in"> 
           
-          {/* 1. Navbar Atas (Desktop) */}
           <Navbar />
           
-          {/* 2. Konten Halaman */}
           <div className="md:pt-20"> 
             <Routes>
                 <Route path="/" element={<Home />} />
@@ -33,14 +45,22 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/movie/:id" element={<MovieDetail />} />
                 <Route path="/about" element={<About />} />
-                {/* Route Baru untuk Login */}
                 <Route path="/login" element={<Login />} />
             </Routes>
           </div>
           
-          {/* 3. Navbar Bawah (Mobile) */}
           <BottomNav />
           
+          {/* PERBAIKAN: Pastikan tidak ada kata 'jsx' di sini */}
+          <style>{`
+            @keyframes fade-in {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            .animate-fade-in {
+              animation: fade-in 0.8s ease-out;
+            }
+          `}</style>
         </div>
     </AuthProvider>
   );

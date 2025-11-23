@@ -111,7 +111,6 @@ function TopRated() {
                     )}
                 </div>
                 
-                {/* Error State */}
                 {error && (
                     <div className="max-w-2xl mx-auto mb-8 animate-slide-up">
                         <div className="relative group">
@@ -145,7 +144,7 @@ function TopRated() {
                     </div>
                 ) : (
                     <>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                             {Array.isArray(movies) && movies.map((movie, index) => (
                                 <div 
                                     key={movie.id} 
@@ -166,8 +165,8 @@ function TopRated() {
                                 disabled={page === 1}
                                 className={`group relative px-8 py-3.5 rounded-2xl font-bold transition-all duration-300 ${
                                     page === 1 
-                                        ? 'bg-gray-800/30 text-gray-600 cursor-not-allowed border border-gray-700/30' 
-                                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95'
+                                    ? 'bg-gray-800/30 text-gray-600 cursor-not-allowed border border-gray-700/30' 
+                                    : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95'
                                 }`}
                             >
                                 {page !== 1 && (
@@ -204,82 +203,53 @@ function TopRated() {
                     </>
                 )}
             </div>
-
-            <style jsx>{`
-                @keyframes fadeInScale {
-                    from {
-                        opacity: 0;
-                        transform: scale(0.9) translateY(20px);
-                    }
-                    to {
-                        opacity: 1;
-                        transform: scale(1) translateY(0);
-                    }
-                }
-
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(-10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-
-                @keyframes fade-in-delayed {
-                    from { opacity: 0; }
-                    to { opacity: 1; }
-                }
-
-                @keyframes slide-up {
-                    from { opacity: 0; transform: translateY(30px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-
-                @keyframes float {
-                    0%, 100% { transform: translate(0, 0) scale(1); }
-                    50% { transform: translate(30px, -30px) scale(1.1); }
-                }
-
-                @keyframes float-delayed {
-                    0%, 100% { transform: translate(0, 0) scale(1); }
-                    50% { transform: translate(-30px, 30px) scale(1.05); }
-                }
-
-                @keyframes gradient {
-                    0%, 100% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                }
-
+            
+            {/* PERBAIKAN: Tag <style jsx> diubah menjadi <style> */}
+            <style>{`
                 @keyframes pulse-slow {
-                    0%, 100% { opacity: 1; }
-                    50% { opacity: 0.6; }
+                  0%, 100% { opacity: 1; }
+                  50% { opacity: 0.6; }
                 }
-
-                .animate-fade-in {
-                    animation: fade-in 0.8s ease-out;
-                }
-
-                .animate-fade-in-delayed {
-                    animation: fade-in-delayed 1s ease-out 0.3s both;
-                }
-
-                .animate-slide-up {
-                    animation: slide-up 0.8s ease-out 0.2s both;
-                }
-
-                .animate-float {
-                    animation: float 20s ease-in-out infinite;
-                }
-
-                .animate-float-delayed {
-                    animation: float-delayed 25s ease-in-out infinite;
-                }
-
-                .animate-gradient {
-                    background-size: 200% 200%;
-                    animation: gradient 3s ease infinite;
-                }
-
                 .animate-pulse-slow {
-                    animation: pulse-slow 2s ease-in-out infinite;
+                  animation: pulse-slow 2s ease-in-out infinite;
                 }
+                
+                /* Animasi tambahan dari Home.jsx yang mungkin dibutuhkan */
+                @keyframes fadeInScale {
+                  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+                  to { opacity: 1; transform: scale(1) translateY(0); }
+                }
+                @keyframes fade-in {
+                  from { opacity: 0; transform: translateY(-10px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes fade-in-delayed {
+                  from { opacity: 0; }
+                  to { opacity: 1; }
+                }
+                @keyframes slide-up {
+                  from { opacity: 0; transform: translateY(30px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes float {
+                  0%, 100% { transform: translate(0, 0) scale(1); }
+                  50% { transform: translate(30px, -30px) scale(1.1); }
+                }
+                @keyframes float-delayed {
+                  0%, 100% { transform: translate(0, 0) scale(1); }
+                  50% { transform: translate(-30px, 30px) scale(1.05); }
+                }
+                @keyframes gradient {
+                  0%, 100% { background-position: 0% 50%; }
+                  50% { background-position: 100% 50%; }
+                }
+
+                .animate-fade-in { animation: fade-in 0.8s ease-out; }
+                .animate-fade-in-delayed { animation: fade-in-delayed 1s ease-out 0.3s both; }
+                .animate-slide-up { animation: slide-up 0.8s ease-out 0.2s both; }
+                .animate-float { animation: float 20s ease-in-out infinite; }
+                .animate-float-delayed { animation: float-delayed 25s ease-in-out infinite; }
+                .animate-gradient { background-size: 200% 200%; animation: gradient 3s ease infinite; }
             `}</style>
         </div>
     );

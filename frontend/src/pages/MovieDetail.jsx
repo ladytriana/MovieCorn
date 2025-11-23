@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Star, Calendar, Clock, Heart } from 'lucide-react';
 
-// GUNAKAN AUTH DAN SUPABASE (BUKAN FIREBASE)
+// Import AuthContext dan Supabase Client
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient'; 
 
@@ -56,7 +56,7 @@ function MovieDetail() {
     fetchDetail();
   }, [id]);
 
-  // --- 2. CEK STATUS FAVORIT (SUPABASE) ---
+  // --- 2. CEK STATUS FAVORIT (SUPABASE - FIX 406) ---
   useEffect(() => {
     const checkFavStatus = async () => {
         if (!user) {
@@ -64,15 +64,19 @@ function MovieDetail() {
             return;
         }
 
-        // Cek database Supabase: Apakah user ini sudah like film ini?
-        const { data } = await supabase
+        // PERBAIKAN: Gunakan .maybeSingle() agar tidak error 406 jika data kosong
+        const { data, error } = await supabase
             .from('favorites')
             .select('*')
             .eq('user_id', user.id)
             .eq('movie_id', id)
-            .single();
+            .maybeSingle(); // <-- Diubah dari .single() ke .maybeSingle()
         
-        if (data) setIsFavorite(true);
+        if (data) {
+            setIsFavorite(true);
+        } else {
+            setIsFavorite(false);
+        }
     };
 
     checkFavStatus();
@@ -127,8 +131,14 @@ function MovieDetail() {
   const getYear = (date) => date ? date.split('-')[0] : '-';
 
   return (
-    <div className="bg-gray-900 min-h-screen text-white pb-20 relative">
+    <div className="relative bg-gray-900 min-h-screen text-white pb-20 overflow-hidden">
       
+       {/* Background Effects */}
+       <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-500/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute top-1/3 -left-40 w-96 h-96 bg-orange-500/8 rounded-full blur-3xl animate-float-delayed"></div>
+      </div>
+
       {/* Banner Atas */}
       <div className="relative w-full h-[40vh] md:h-[60vh]">
         <button 
@@ -222,6 +232,14 @@ function MovieDetail() {
           </div>
         </div>
       </div>
+
+      {/* Tambahkan Animasi Float (Optional, agar konsisten dengan halaman lain) */}
+      <style>{`
+        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.1); } }
+        @keyframes float-delayed { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-30px, 30px) scale(1.05); } }
+        .animate-float { animation: float 20s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 25s ease-in-out infinite; }
+      `}</style>
     </div>
   );
 }

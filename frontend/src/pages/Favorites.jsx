@@ -5,15 +5,16 @@ import { Trash2, Star, Calendar, Heart, ArrowLeft, ArrowRight, Sparkles, Lock } 
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../supabaseClient'; 
 
+// URL Gambar TMDB (w500 cukup untuk kartu)
+const IMG_URL = 'https://image.tmdb.org/t/p/w500';
+
 function Favorites() {
   const { user } = useAuth();
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1); 
-  const itemsPerPage = 9; 
+  const itemsPerPage = 9; // 9 film per halaman
   
-  const IMG_URL = 'https://image.tmdb.org/t/p/w500';
-
   // --- LOAD DATA DARI SUPABASE ---
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -27,7 +28,7 @@ function Favorites() {
             .from('favorites')
             .select('*')
             .eq('user_id', user.id)
-            .order('created_at', { ascending: false });
+            .order('created_at', { ascending: false }); // Urutkan dari yang terbaru
 
         if (error) {
             console.error("Error fetching favs:", error.message);
@@ -49,6 +50,7 @@ function Favorites() {
   const removeFavorite = async (movieId) => {
     if (!user) return;
     
+    // Optimistic UI: Hapus dari tampilan dulu
     const previousFavorites = [...favorites];
     setFavorites(favorites.filter(m => m.movie_id !== movieId));
 
@@ -61,6 +63,7 @@ function Favorites() {
         
         if (error) throw error;
 
+        // Penyesuaian halaman setelah penghapusan
         const newLength = favorites.length - 1;
         const totalPages = Math.ceil(newLength / itemsPerPage);
         if (page > totalPages && page > 1) {
@@ -69,7 +72,7 @@ function Favorites() {
 
     } catch (err) {
         console.error("Gagal hapus:", err.message);
-        setFavorites(previousFavorites);
+        setFavorites(previousFavorites); // Kembalikan data jika gagal
     }
   };
 
@@ -81,51 +84,147 @@ function Favorites() {
   const handlePrev = () => setPage(p => Math.max(1, p - 1));
   const handleNext = () => setPage(p => Math.min(totalPages, p + 1));
 
-  // Jika belum login
+  // --- RENDER JIKA BELUM LOGIN (PROTEKSI) ---
   if (!user) {
       return (
-        <div className="bg-gray-900 min-h-screen text-white p-4 flex flex-col items-center justify-center h-[80vh]">
-            <Lock size={64} className="text-gray-600 mb-4" />
-            <h2 className="text-2xl font-bold mb-2">Akses Terbatas</h2>
-            <p className="text-gray-400 mb-6 text-center">Silakan login untuk melihat dan menyimpan film favoritmu.</p>
-            <Link to="/login" className="bg-yellow-500 text-black px-8 py-3 rounded-full font-bold hover:bg-yellow-400 transition">
-                Login / Daftar
-            </Link>
+        <div className="relative bg-gray-900 min-h-screen text-white overflow-hidden">
+          {/* Background Effects */}
+          <div className="fixed inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-500/10 rounded-full blur-3xl animate-float"></div>
+            <div className="absolute top-1/3 -left-40 w-96 h-96 bg-orange-500/8 rounded-full blur-3xl animate-float-delayed"></div>
+          </div>
+
+          <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+            <div className="max-w-md w-full text-center animate-slide-up">
+              {/* Lock Icon */}
+              <div className="relative mb-8">
+                <div className="absolute inset-0 bg-red-500/10 blur-3xl rounded-full"></div>
+                <div className="relative w-32 h-32 mx-auto rounded-3xl bg-gray-800/50 backdrop-blur-sm flex items-center justify-center border border-gray-700/50">
+                  <Lock size={56} className="text-gray-600" strokeWidth={1.5} />
+                </div>
+              </div>
+
+              <h2 className="text-3xl font-black tracking-tight mb-3 bg-gradient-to-br from-red-400 via-red-500 to-orange-500 text-transparent bg-clip-text">
+                Akses Terbatas
+              </h2>
+              <p className="text-gray-400 mb-8 leading-relaxed">
+                Silakan login untuk melihat dan menyimpan film favoritmu di koleksi pribadi.
+              </p>
+              
+              <Link 
+                to="/login" 
+                className="group relative inline-flex px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                <span className="relative z-10 flex items-center gap-2">
+                  <Sparkles size={20} />
+                  Login / Daftar
+                </span>
+              </Link>
+            </div>
+          </div>
         </div>
       );
   }
 
   return (
     <div className="relative bg-gray-900 min-h-screen text-white overflow-hidden">
-      {/* Background Animasi */}
+      
+      {/* Advanced Gradient Background */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-red-500/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute top-1/3 -left-40 w-96 h-96 bg-orange-500/8 rounded-full blur-3xl animate-float-delayed"></div>
         <div className="absolute -bottom-20 right-1/4 w-72 h-72 bg-yellow-400/10 rounded-full blur-3xl animate-pulse"></div>
       </div>
 
+      {/* Main Content Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        {/* --- HERO SECTION --- */}
         <div className="text-center mb-12 mt-8">
+          <div className="flex justify-center items-center gap-4 mb-4 animate-fade-in">
+            <div className="relative">
+              <div className="absolute inset-0 bg-red-500/30 blur-2xl rounded-full animate-pulse"></div>
+              <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-red-500 to-orange-500 shadow-2xl shadow-red-500/30">
+                <Heart size={32} className="text-white" fill="currentColor" strokeWidth={2.5} />
+              </div>
+            </div>
+          </div>
+          
           <h1 className="text-4xl md:text-5xl font-black tracking-tighter mb-3 bg-gradient-to-br from-red-400 via-red-500 to-orange-500 text-transparent bg-clip-text animate-gradient">
             Film Favorit Saya
           </h1>
+          
+          <p className="text-gray-400 text-sm md:text-base font-medium tracking-wide max-w-2xl mx-auto animate-fade-in-delayed">
+            Koleksi film pilihan yang telah kamu simpan untuk ditonton kapan saja
+          </p>
         </div>
 
         {loading ? (
-          <div className="text-center mt-20 text-gray-500 animate-pulse">Memuat koleksi film...</div>
+          <div className="flex flex-col items-center justify-center min-h-[40vh] animate-pulse">
+            <div className="w-16 h-16 rounded-2xl bg-gray-800/50 backdrop-blur-sm mb-4 flex items-center justify-center border border-gray-700/50">
+              <Heart size={32} className="text-gray-600" />
+            </div>
+            <p className="text-gray-500 font-medium">Memuat koleksi film...</p>
+          </div>
         ) : favorites.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[40vh] animate-slide-up">
-             <Heart size={56} className="text-gray-600 mb-4" />
-             <h3 className="text-2xl font-bold text-gray-300 mb-3">Belum Ada Film Favorit</h3>
-             <Link to="/" className="mt-4 px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-2xl font-bold">Jelajahi Film</Link>
+          <div className="flex flex-col items-center justify-center min-h-[50vh] animate-slide-up">
+            <div className="relative mb-8">
+              <div className="absolute inset-0 bg-red-500/10 blur-3xl rounded-full"></div>
+              <div className="relative w-32 h-32 rounded-3xl bg-gray-800/50 backdrop-blur-sm flex items-center justify-center border border-gray-700/50">
+                <Heart size={56} className="text-gray-600" strokeWidth={1.5} />
+              </div>
+            </div>
+            
+            <h3 className="text-2xl font-bold text-gray-300 mb-3">Belum Ada Film Favorit</h3>
+            <p className="text-gray-500 mb-8 max-w-md text-center">
+              Mulai tambahkan film kesukaanmu dengan klik icon hati pada film yang kamu suka
+            </p>
+            
+            <Link 
+              to="/" 
+              className="group relative px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+              <span className="relative z-10 flex items-center gap-2">
+                <Sparkles size={20} />
+                Jelajahi Film
+              </span>
+            </Link>
           </div>
         ) : (
           <>
+            {/* --- SECTION HEADER --- */}
+            <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-800/50">
+              <div className="flex items-center gap-4">
+                <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500/20 to-orange-500/20 backdrop-blur-sm border border-red-500/30">
+                  <Heart className="text-red-500" fill="currentColor" size={26} />
+                  <div className="absolute inset-0 bg-red-500/20 blur-xl rounded-2xl"></div>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                    Koleksi Saya
+                    <Sparkles size={20} className="text-yellow-500" />
+                  </h2>
+                  <p className="text-sm text-gray-400 mt-0.5">
+                    {favorites.length} film tersimpan
+                    {totalPages > 1 && ` • Halaman ${page} dari ${totalPages}`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Results Count */}
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/30">
+                <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+                <span className="text-sm font-semibold text-gray-300">{displayedFavorites.length} ditampilkan</span>
+              </div>
+            </div>
+
             {/* Grid Film */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {displayedFavorites.map((movie, index) => (
-                <div key={movie.id || movie.movie_id} className="group relative transform transition-all duration-500 hover:scale-[1.02] hover:z-20">
+                // Menggunakan movie.movie_id sebagai key karena ini data dari database
+                <div key={movie.movie_id} className="group relative transform transition-all duration-500 hover:scale-[1.02] hover:z-20">
                    <div className="relative flex bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 shadow-xl">
                       <Link to={`/movie/${movie.movie_id}`} className="relative w-1/3 min-w-[120px]">
                         <img 
@@ -170,10 +269,22 @@ function Favorites() {
         )}
       </div>
 
-      {/* PERBAIKAN: HAPUS 'jsx' DARI TAG STYLE */}
       <style>{`
         @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .animate-gradient { background-size: 200% 200%; animation: gradient 3s ease infinite; }
+        /* Animasi tambahan */
+        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.1); } }
+        @keyframes float-delayed { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-30px, 30px) scale(1.05); } }
+        .animate-float { animation: float 20s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 25s ease-in-out infinite; }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade-in-delayed { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.8s ease-out; }
+        .animate-fade-in-delayed { animation: fade-in-delayed 1s ease-out 0.3s both; }
+        .animate-slide-up { animation: slide-up 0.8s ease-out 0.2s both; }
       `}</style>
     </div>
   );

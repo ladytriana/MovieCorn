@@ -166,13 +166,13 @@ function Home() {
         {/* --- MOVIE GRID --- */}
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
-            {[...Array(18)].map((_, i) => (
-              <div key={i} className="group relative">
-                <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-700/40 via-gray-800/40 to-gray-900/40 animate-pulse-slow"></div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
+             {[...Array(18)].map((_, i) => (
+                <div key={i} className="group relative">
+                  <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-700/40 via-gray-800/40 to-gray-900/40 animate-pulse-slow"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
+                  </div>
                 </div>
-              </div>
             ))}
           </div>
         ) : (
@@ -252,81 +252,47 @@ function Home() {
         )}
       </div>
 
-      <style jsx>{`
+      {/* SAYA MENGEMBALIKAN SEMUA STYLE ANIMASI YANG HILANG DI SINI */}
+      <style>{`
         @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: scale(0.9) translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
+          from { opacity: 0; transform: scale(0.9) translateY(20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
-
         @keyframes fade-in {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes fade-in-delayed {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-
         @keyframes slide-up {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes float {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(30px, -30px) scale(1.1); }
         }
-
         @keyframes float-delayed {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(-30px, 30px) scale(1.05); }
         }
-
         @keyframes gradient-x {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
         }
-
         @keyframes pulse-slow {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.6; }
         }
-
-        .animate-fade-in {
-          animation: fade-in 0.8s ease-out;
-        }
-
-        .animate-fade-in-delayed {
-          animation: fade-in-delayed 1s ease-out 0.3s both;
-        }
-
-        .animate-slide-up {
-          animation: slide-up 0.8s ease-out 0.2s both;
-        }
-
-        .animate-float {
-          animation: float 20s ease-in-out infinite;
-        }
-
-        .animate-float-delayed {
-          animation: float-delayed 25s ease-in-out infinite;
-        }
-
-        .animate-gradient-x {
-          background-size: 200% 200%;
-          animation: gradient-x 3s ease infinite;
-        }
-
-        .animate-pulse-slow {
-          animation: pulse-slow 2s ease-in-out infinite;
-        }
+        .animate-fade-in { animation: fade-in 0.8s ease-out; }
+        .animate-fade-in-delayed { animation: fade-in-delayed 1s ease-out 0.3s both; }
+        .animate-slide-up { animation: slide-up 0.8s ease-out 0.2s both; }
+        .animate-float { animation: float 20s ease-in-out infinite; }
+        .animate-float-delayed { animation: float-delayed 25s ease-in-out infinite; }
+        .animate-gradient-x { background-size: 200% 200%; animation: gradient-x 3s ease infinite; }
+        .animate-pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
       `}</style>
     </div>
   );
