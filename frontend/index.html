@@ -2,13 +2,29 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    
+    <!-- GANTI FAVICON - Hapus vite.svg, pakai icon sendiri -->
+    <link rel="icon" type="image/png" href="/icons/icon-192x192.png" />
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- TAMBAHKAN INI UNTUK PWA -->
+    <!-- Web App Manifest - INI YANG PALING PENTING! -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Theme Color untuk mobile browser -->
     <meta name="theme-color" content="#111827" />
     
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <!-- Apple Touch Icon untuk iOS -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    
+    <!-- Meta tags untuk PWA iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="MovieCorn" />
+    
+    <!-- Meta tags untuk SEO dan PWA -->
+    <meta name="description" content="MovieCorn - Platform streaming film terbaik dengan koleksi film terlengkap" />
+    <meta name="application-name" content="MovieCorn" />
     
     <title>MovieCorn</title>
   </head>
