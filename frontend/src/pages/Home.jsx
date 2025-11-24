@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import MovieCard from '../components/MovieCard';
-import { Search, Flame, ArrowLeft, ArrowRight, TrendingUp } from 'lucide-react';
+import { Search, Flame, ArrowLeft, ArrowRight, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Fallback aman untuk API KEY
 let API_KEY = '';
@@ -204,55 +204,89 @@ function Home() {
               </div>
             )}
 
-            {/* --- MODERN PAGINATION --- */}
+            {/* --- RESPONSIVE PAGINATION --- */}
             {movies.length > 0 && (
-              <div className="flex justify-center items-center gap-4 mt-20 mb-10">
-                <button 
-                  onClick={handlePrev}
-                  disabled={page === 1}
-                  className={`group relative px-8 py-3.5 rounded-2xl font-bold transition-all duration-300 ${
-                    page === 1 
-                      ? 'bg-gray-800/30 text-gray-600 cursor-not-allowed border border-gray-700/30' 
-                      : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95'
-                  }`}
-                >
-                  {page !== 1 && (
-                    <>
-                      <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                      <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    </>
-                  )}
-                  <span className="relative z-10 flex items-center gap-2">
-                    <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />
-                    Previous
-                  </span>
-                </button>
+              <>
+                {/* MOBILE VERSION */}
+                <div className="sm:hidden flex justify-center items-center gap-2 mt-8 mb-20 pb-4">
+                  <button 
+                    onClick={handlePrev}
+                    disabled={page === 1}
+                    className={`
+                      p-3 rounded-xl font-bold transition-all duration-200
+                      ${page === 1 
+                        ? 'bg-gray-800/50 text-gray-600 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-lg active:scale-95'
+                      }
+                    `}
+                  >
+                    <ChevronLeft size={20} strokeWidth={3} />
+                  </button>
 
-                <div className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 shadow-xl">
-                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Page</span>
-                  <div className="flex items-center justify-center min-w-[2.5rem] h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/30">
-                    <span className="text-xl font-black text-black">{page}</span>
+                  <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-800/70 backdrop-blur-sm border border-gray-700/50">
+                    <span className="text-xs font-semibold text-gray-400">PAGE</span>
+                    <div className="flex items-center justify-center min-w-[2rem] h-8 rounded-lg bg-gradient-to-br from-yellow-500 to-orange-500">
+                      <span className="text-lg font-black text-black">{page}</span>
+                    </div>
                   </div>
+
+                  <button 
+                    onClick={handleNext}
+                    className="p-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-xl font-bold transition-all duration-200 shadow-lg active:scale-95"
+                  >
+                    <ChevronRight size={20} strokeWidth={3} />
+                  </button>
                 </div>
 
-                <button 
-                  onClick={handleNext}
-                  className="group relative px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
-                  <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <span className="relative z-10 flex items-center gap-2">
-                    Next
-                    <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
-                  </span>
-                </button>
-              </div>
+                {/* DESKTOP VERSION */}
+                <div className="hidden sm:flex justify-center items-center gap-4 mt-20 mb-10">
+                  <button 
+                    onClick={handlePrev}
+                    disabled={page === 1}
+                    className={`group relative px-8 py-3.5 rounded-2xl font-bold transition-all duration-300 ${
+                      page === 1 
+                        ? 'bg-gray-800/30 text-gray-600 cursor-not-allowed border border-gray-700/30' 
+                        : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95'
+                    }`}
+                  >
+                    {page !== 1 && (
+                      <>
+                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                        <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      </>
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />
+                      Previous
+                    </span>
+                  </button>
+
+                  <div className="flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gray-800/50 backdrop-blur-xl border border-gray-700/50 shadow-xl">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Page</span>
+                    <div className="flex items-center justify-center min-w-[2.5rem] h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/30">
+                      <span className="text-xl font-black text-black">{page}</span>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={handleNext}
+                    className="group relative px-8 py-3.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-black rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-yellow-500/20 hover:shadow-2xl hover:shadow-yellow-500/40 hover:scale-105 active:scale-95"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur-lg opacity-40 group-hover:opacity-60 transition-opacity"></div>
+                    <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span className="relative z-10 flex items-center gap-2">
+                      Next
+                      <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </button>
+                </div>
+              </>
             )}
           </>
         )}
       </div>
 
-      {/* SAYA MENGEMBALIKAN SEMUA STYLE ANIMASI YANG HILANG DI SINI */}
+      {/* ANIMATIONS */}
       <style>{`
         @keyframes fadeInScale {
           from { opacity: 0; transform: scale(0.9) translateY(20px); }

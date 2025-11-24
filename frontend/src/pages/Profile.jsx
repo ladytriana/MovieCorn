@@ -304,7 +304,8 @@ function Profile() {
                 </div>
             </div>
 
-            <style jsx>{`
+            {/* PERBAIKAN: Ganti <style jsx> menjadi <style> biasa */}
+            <style>{`
                 @keyframes fade-in {
                     from { opacity: 0; transform: translateY(-10px); }
                     to { opacity: 1; transform: translateY(0); }
@@ -325,8 +326,17 @@ function Profile() {
                     50% { transform: translate(-30px, 30px) scale(1.05); }
                 }
 
+                @keyframes gradient {
+                    0%, 100% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                }
+
                 .animate-fade-in {
                     animation: fade-in 0.8s ease-out;
+                }
+
+                .animate-fade-in-delayed {
+                    animation: fade-in 1s ease-out 0.3s both;
                 }
 
                 .animate-slide-up {
@@ -339,6 +349,11 @@ function Profile() {
 
                 .animate-float-delayed {
                     animation: float-delayed 25s ease-in-out infinite;
+                }
+
+                .animate-gradient {
+                    background-size: 200% 200%;
+                    animation: gradient 3s ease infinite;
                 }
             `}</style>
         </div>
