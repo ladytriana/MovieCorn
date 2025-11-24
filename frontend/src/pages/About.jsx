@@ -99,7 +99,7 @@ function About() {
         className="text-gray-500 text-sm mt-8 relative z-10"
         variants={itemVariants}
       >
-        Dibuat oleh <a href="https://github.com/your-github-profile" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:underline">{yourName}</a> &copy; {currentYear}
+        Dibuat oleh <a href="https://github.com/ladytriana" target="_blank" rel="noopener noreferrer" className="text-yellow-500 hover:underline">{yourName}</a> &copy; {currentYear}
       </motion.p>
     </motion.div>
   );
