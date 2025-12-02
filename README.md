@@ -3,6 +3,7 @@
 MovieCorn adalah aplikasi web progresif (PWA) yang dirancang untuk menjadi teman setia Anda dalam menjelajahi dunia perfilman.  
 Aplikasi ini dibangun menggunakan teknologi front-end modern dan menawarkan antarmuka yang cepat, responsif, dan elegan.
 
+vercel link : https://movie-corn-v2u7.vercel.app/
 ---
 
 ## ✨ Fitur Utama Aplikasi
