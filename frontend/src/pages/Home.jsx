@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import MovieCard from '../components/MovieCard';
-import { Flame, ArrowLeft, ArrowRight, TrendingUp } from 'lucide-react'; // Search dihilangkan dari import
+import { Search, Flame, ArrowLeft, ArrowRight, TrendingUp, Filter } from 'lucide-react'; // Tambah icon Filter
 
 // Fallback aman untuk API KEY
 let API_KEY = '';
@@ -19,21 +19,49 @@ function Home() {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  // State 'searchTerm' dihapus karena tidak ada pencarian
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // State Baru untuk Filter
+  const [genres, setGenres] = useState([]); // Menyimpan daftar genre (Action, Horror, dll)
+  const [selectedGenre, setSelectedGenre] = useState(null); // Menyimpan genre yang sedang dipilih
 
+  // 1. FETCH DAFTAR GENRE (Sekali saja saat load)
+  useEffect(() => {
+    const fetchGenres = async () => {
+        try {
+            const response = await axios.get(`${BASE_URL}/genre/movie/list?api_key=${API_KEY}&language=id-ID`);
+            setGenres(response.data.genres || []);
+        } catch (error) {
+            console.error("Gagal mengambil genre:", error);
+        }
+    };
+    fetchGenres();
+  }, []);
+
+  // 2. FETCH FILM (Tergantung Search, Genre, atau Trending)
   useEffect(() => {
     const fetchMovies = async () => {
       setLoading(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       
       try {
-        // LOGIKA: Langsung ambil Trending (tanpa if/else pencarian)
-        const endpoint = `${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=id-ID&page=${page}`;
+        let endpoint;
+
+        if (searchTerm) {
+            // KASUS A: Sedang Mencari Judul
+            endpoint = `${BASE_URL}/search/movie?api_key=${API_KEY}&language=id-ID&query=${searchTerm}&page=${page}`;
+        } else if (selectedGenre) {
+            // KASUS B: Sedang Filter Genre (Gunakan /discover)
+            endpoint = `${BASE_URL}/discover/movie?api_key=${API_KEY}&language=id-ID&with_genres=${selectedGenre}&page=${page}`;
+        } else {
+            // KASUS C: Default (Trending)
+            endpoint = `${BASE_URL}/trending/movie/week?api_key=${API_KEY}&language=id-ID&page=${page}`;
+        }
 
         const response = await axios.get(endpoint);
         const results = response.data?.results || [];
 
-        // Ambil hanya 18 film pertama agar tampilan rapi (3 baris x 6 kolom)
+        // Ambil hanya 18 film
         setMovies(results.slice(0, 18));
 
       } catch (error) {
@@ -43,8 +71,31 @@ function Home() {
       }
     };
 
-    fetchMovies();
-  }, [page]); // Dependency hanya 'page'
+    // Debounce
+    const timeoutId = setTimeout(() => {
+        fetchMovies();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [page, searchTerm, selectedGenre]); // Dependency ditambah selectedGenre
+
+  // Handler Search
+  const handleSearchChange = (e) => {
+      setSearchTerm(e.target.value);
+      setSelectedGenre(null); // Reset genre jika user mulai mencari teks
+      setPage(1); 
+  };
+
+  // Handler Klik Genre
+  const handleGenreClick = (genreId) => {
+      if (selectedGenre === genreId) {
+          setSelectedGenre(null); // Klik lagi untuk unselect (kembali ke trending)
+      } else {
+          setSelectedGenre(genreId);
+          setSearchTerm(""); // Reset search text jika user memilih genre
+      }
+      setPage(1);
+  };
 
   const handlePrev = () => setPage(p => (p > 1 ? p - 1 : p));
   const handleNext = () => setPage(p => p + 1);
@@ -62,41 +113,133 @@ function Home() {
       {/* Main Content Container */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24">
         
-        {/* --- HEADER (Hanya Logo untuk Mobile) --- */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 pt-2">
-          
-          {/* BAGIAN LOGO (RESPONSIVE: Hanya muncul di HP) */}
-          <div className="flex md:hidden items-center gap-4 group cursor-default self-start">
+        {/* --- HERO SECTION --- */}
+        <div className="text-center mb-8 mt-8">
+          {/* Logo Mobile Only */}
+          <div className="flex md:hidden justify-center items-center gap-3 mb-8 animate-fade-in">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-yellow-500/30 rounded-3xl blur-2xl group-hover:bg-yellow-500/40 transition-all duration-500"></div>
               <img 
-                  src="/logo.png" 
-                  alt="MovieCorn Logo" 
-                  className="w-16 h-16 object-contain drop-shadow-lg"
-                  onError={(e) => e.target.style.display = 'none'} 
+                src="/logo.png" 
+                alt="MovieCorn Logo" 
+                className="relative w-14 h-14 object-contain drop-shadow-2xl transform group-hover:scale-110 transition-transform duration-300"
+                onError={(e) => e.target.style.display = 'none'} 
               />
-              <h1 className="text-3xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-500 drop-shadow-sm">
-                  MovieCorn
-              </h1>
+            </div>
+            <h1 className="text-3xl font-black tracking-tighter bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 text-transparent bg-clip-text">
+              MovieCorn
+            </h1>
           </div>
-          
-          {/* SEARCH BAR DIHAPUS */}
 
+          {/* Search Bar */}
+          <div className="max-w-3xl mx-auto mb-8 animate-slide-up">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500 animate-gradient-x"></div>
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-800/90 to-gray-800/80 backdrop-blur-xl rounded-3xl border border-gray-700/50 group-focus-within:border-yellow-500/50 transition-all duration-300"></div>
+                <div className="relative flex items-center">
+                  <div className="absolute left-6 flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/30 group-focus-within:shadow-yellow-500/50 group-focus-within:scale-110 transition-all duration-300">
+                    <Search className="text-black" size={22} strokeWidth={2.5} />
+                  </div>
+                  <input 
+                    type="text"
+                    placeholder="Cari film yang kamu inginkan..."
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    className="w-full bg-transparent text-white text-lg pl-24 pr-8 py-5 rounded-3xl focus:outline-none placeholder:text-gray-500 font-medium"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* --- JUDUL SECTION --- */}
+        {/* --- GENRE FILTER BAR (NEW!) --- */}
+        <div className="mb-10 animate-fade-in-delayed">
+            <div className="flex items-center gap-2 mb-3 px-1">
+                <Filter size={16} className="text-yellow-500" />
+                <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">Kategori</span>
+            </div>
+            {/* Scrollable Container */}
+            <div className="flex overflow-x-auto pb-4 gap-3 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+                {/* Tombol "Semua" */}
+                <button
+                    onClick={() => setSelectedGenre(null)}
+                    className={`flex-shrink-0 px-5 py-2 rounded-full font-medium transition-all duration-300 border ${
+                        selectedGenre === null
+                        ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-500/20 scale-105'
+                        : 'bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-500 hover:bg-gray-700 hover:text-white'
+                    }`}
+                >
+                    Semua
+                </button>
+
+                {/* Tombol Genre Dinamis */}
+                {genres.map((genre) => (
+                    <button
+                        key={genre.id}
+                        onClick={() => handleGenreClick(genre.id)}
+                        className={`flex-shrink-0 px-5 py-2 rounded-full font-medium transition-all duration-300 border ${
+                            selectedGenre === genre.id
+                            ? 'bg-yellow-500 text-black border-yellow-500 shadow-lg shadow-yellow-500/20 scale-105'
+                            : 'bg-gray-800/50 text-gray-400 border-gray-700 hover:border-gray-500 hover:bg-gray-700 hover:text-white'
+                        }`}
+                    >
+                        {genre.name}
+                    </button>
+                ))}
+            </div>
+        </div>
+
+        {/* --- SECTION HEADER --- */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-gray-800/50">
-            <div className="flex items-center gap-4">
-                <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-sm border border-orange-500/30">
-                    <Flame className="text-orange-500 animate-pulse" fill="currentColor" size={26} />
-                    <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-2xl"></div>
+          <div className="flex items-center gap-4">
+             {/* Logika Judul: Search > Genre > Trending */}
+            {searchTerm ? (
+              <>
+                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/50">
+                  <Search size={24} className="text-yellow-500" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+                  <h2 className="text-2xl font-bold tracking-tight">Hasil Pencarian</h2>
+                  <p className="text-sm text-gray-400 mt-0.5">"{searchTerm}"</p>
+                </div>
+              </>
+            ) : selectedGenre ? (
+              <>
+                 <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-sm border border-blue-500/30">
+                  <Filter className="text-blue-400" size={24} />
+                  <div className="absolute inset-0 bg-blue-500/20 blur-xl rounded-2xl"></div>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight">Kategori: {genres.find(g => g.id === selectedGenre)?.name}</h2>
+                  <p className="text-sm text-gray-400 mt-0.5">Menampilkan film berdasarkan genre</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-sm border border-orange-500/30">
+                  <Flame className="text-orange-500 animate-pulse" fill="currentColor" size={26} />
+                  <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-2xl"></div>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
                     Sedang Trending
                     <TrendingUp size={20} className="text-yellow-500" />
-                    </h2>
-                    <p className="text-sm text-gray-400 mt-0.5">Film populer minggu ini</p>
+                  </h2>
+                  <p className="text-sm text-gray-400 mt-0.5">Film populer minggu ini</p>
                 </div>
+              </>
+            )}
+          </div>
+
+          {/* Results Count */}
+          {!loading && movies.length > 0 && (
+            <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800/50 backdrop-blur-sm border border-gray-700/30">
+              <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+              <span className="text-sm font-semibold text-gray-300">{movies.length} Film</span>
             </div>
+          )}
         </div>
 
         {/* --- MOVIE GRID --- */}
@@ -106,6 +249,7 @@ function Home() {
                 <div key={i} className="group relative">
                   <div className="relative aspect-[2/3] rounded-2xl overflow-hidden bg-gray-800/30 backdrop-blur-sm border border-gray-700/30">
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-700/40 via-gray-800/40 to-gray-900/40 animate-pulse-slow"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
                   </div>
                 </div>
             ))}
@@ -113,8 +257,15 @@ function Home() {
         ) : (
           <>
             {movies.length === 0 ? (
-              <div className="text-center text-gray-500 mt-20">
-                  <p>Film tidak ditemukan.</p>
+              <div className="flex flex-col items-center justify-center text-center mt-32 mb-20">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-yellow-500/10 blur-3xl rounded-full"></div>
+                  <div className="relative w-24 h-24 rounded-3xl bg-gray-800/50 backdrop-blur-sm flex items-center justify-center border border-gray-700/50">
+                    <Search size={40} className="text-gray-600" strokeWidth={1.5} />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold text-gray-300 mb-2">Film Tidak Ditemukan</h3>
+                <p className="text-gray-500">Coba kata kunci atau kategori lain</p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
@@ -180,25 +331,32 @@ function Home() {
         )}
       </div>
 
+      {/* Custom CSS for horizontal scrolling without scrollbar */}
       <style>{`
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
         @keyframes fadeInScale {
           from { opacity: 0; transform: scale(0.9) translateY(20px); }
           to { opacity: 1; transform: scale(1) translateY(0); }
         }
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(30px, -30px) scale(1.1); }
-        }
-        @keyframes float-delayed {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-30px, 30px) scale(1.05); }
-        }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.6; }
-        }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fade-in-delayed { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.1); } }
+        @keyframes float-delayed { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-30px, 30px) scale(1.05); } }
+        @keyframes gradient-x { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .animate-fade-in { animation: fade-in 0.8s ease-out; }
+        .animate-fade-in-delayed { animation: fade-in-delayed 1s ease-out 0.3s both; }
+        .animate-slide-up { animation: slide-up 0.8s ease-out 0.2s both; }
         .animate-float { animation: float 20s ease-in-out infinite; }
         .animate-float-delayed { animation: float-delayed 25s ease-in-out infinite; }
+        .animate-gradient-x { background-size: 200% 200%; animation: gradient-x 3s ease infinite; }
         .animate-pulse-slow { animation: pulse-slow 2s ease-in-out infinite; }
       `}</style>
     </div>
